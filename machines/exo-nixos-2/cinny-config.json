@@ -1,0 +1,17 @@
+{
+  "defaultHomeserver": 0,
+  "homeserverList": ["matrix.exo.parou.eu"],
+  "allowCustomHomeservers": false,
+
+  "featuredCommunities": {
+    "openAsDefault": false,
+    "spaces":  [],
+    "rooms":   [],
+    "servers": []
+  },
+
+  "hashRouter": {
+    "enabled": true,
+    "basename": "/"
+  }
+}
