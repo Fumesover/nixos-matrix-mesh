@@ -55,6 +55,7 @@ in
           ssl = true;
 
           ircClients.nickTemplate = "$DISPLAY";
+          ircClients.lineLimit = 42;
 
           botConfig.enabled = true;
           botConfig.nick     = secrets.services.matrix.bot_name;
