@@ -86,16 +86,16 @@ in
   # allowing newjoiners to access history
   systemd.services.matrix-appservice-irc-force-shared = {
     startAt = "hourly";
-    script = pkgs.writeShellScript ''
+    script = ''
       #! /usr/bin/env bash
 
       set -eo pipefail
 
       ENDPOINT="http://localhost:6167"
-      AUTH='Authorization: Bearer $(${pkgs.yq}/bin/yq -r .as_token /var/lib/matrix-appservice-irc/registration.yml)'
+      AUTH="Authorization: Bearer $(${pkgs.yq}/bin/yq -r .as_token /var/lib/matrix-appservice-irc/registration.yml)"
 
       while read -r ROOM ; do
-        VISIBILITY=$(curl -s --fail -XGET -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility" | $JQ -r .history_visibility)
+        VISIBILITY="$(curl -s --fail -XGET -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility" | ${pkgs.jq}/bin/jq -r .history_visibility)"
         echo "ROOM: $ROOM : $VISIBILITY"
 
         if [ "$VISIBILITY" != "shared" ]; then
@@ -103,7 +103,7 @@ in
                 curl -s --fail -XPUT -d '{"history_visibility": "shared"}' -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility"
         fi
 
-      done < <(curl -s --fail -XGET -H "$AUTH" $ENDPOINT/_matrix/client/v3/joined_rooms | $JQ -r .joined_rooms[])
+      done < <(curl -s --fail -XGET -H "$AUTH" $ENDPOINT/_matrix/client/v3/joined_rooms | ${pkgs.jq}/bin/jq -r .joined_rooms[])
       '';
 
     serviceConfig = {
