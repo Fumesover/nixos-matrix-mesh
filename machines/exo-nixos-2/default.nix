@@ -1,4 +1,4 @@
-{ disko, config, pkgs, ... }:
+{ disko, config, pkgs, lib, ... }:
 {
   imports = [
     disko.nixosModules.disko
@@ -15,6 +15,8 @@
   time.timeZone = "Europe/Paris";
 
   # system.stateVersion = "22.11";
+
+  hardware.enableRedistributableFirmware = lib.mkForce false;
 
   my.system.openssh.enable = true;
   my.networking.tailscale.enable = true;

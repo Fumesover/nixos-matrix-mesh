@@ -12,7 +12,7 @@ in
     environment.systemPackages = with pkgs; [
       wget
       vim
-      git
+      gitMinimal
     ];
 
     programs = {
