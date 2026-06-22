@@ -15,7 +15,7 @@ in
     enable = true;
 
     settings.global = {
-      server_name = "matrix.${networking.hostName}.parou.eu";
+      server_name = "matrix.${config.networking.hostName}.parou.eu";
       allow_registration = true;
       allow_federation = false;
       allow_encryption = true;
@@ -39,12 +39,12 @@ in
   #   settings = {
   #     homeserver = {
   #       url = "http://localhost:${builtins.toString (builtins.head config.services.matrix-tuwunel.settings.global.port)}";
-  #       domain = "matrix.${networking.hostName}.parou.eu";
+  #       domain = "matrix.${config.networking.hostName}.parou.eu";
   #     };
 
   #     ircService.logging.level = "info"; # Do not log messages
   #     ircService.mediaProxy = {
-  #       publicUrl = "https://matrix.${networking.hostName}.parou.eu/irc-media";
+  #       publicUrl = "https://matrix.${config.networking.hostName}.parou.eu/irc-media";
   #       bindPort = 11111;
   #       ttlSeconds = 0;
   #     };

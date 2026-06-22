@@ -44,19 +44,19 @@
 
     dynamicConfigOptions = {
       http.routers.element-exo-parou-eu = {
-        rule = "Host(`element.${networking.hostName}.parou.eu`)";
+        rule = "Host(`element.${config.networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "nginx-static-service";
         tls.certResolver = "letsencrypt";
       };
       http.routers.cinny-exo-parou-eu = {
-        rule = "Host(`cinny.${networking.hostName}.parou.eu`)";
+        rule = "Host(`cinny.${config.networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "nginx-static-service";
         tls.certResolver = "letsencrypt";
       };
       http.routers.matrix-exo-parou-eu = {
-        rule = "Host(`matrix.${networking.hostName}.parou.eu`)";
+        rule = "Host(`matrix.${config.networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "tuwunel-service";
         tls.certResolver = "letsencrypt";

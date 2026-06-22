@@ -7,7 +7,7 @@
     recommendedOptimisation = true;
     recommendedGzipSettings = true;
 
-    virtualHosts."${networking.hostName}.parou.eu" = {
+    virtualHosts."${config.networking.hostName}.parou.eu" = {
       addSSL = false;
       forceSSL = false;
 
@@ -23,7 +23,7 @@
       };
     };
 
-    virtualHosts."cinny.${networking.hostName}.parou.eu" = {
+    virtualHosts."cinny.${config.networking.hostName}.parou.eu" = {
       addSSL = false;
       forceSSL = false;
 
@@ -53,7 +53,7 @@
       };
     };
 
-    virtualHosts."element.${networking.hostName}.parou.eu" = {
+    virtualHosts."element.${config.networking.hostName}.parou.eu" = {
       root = pkgs.element-web;
       addSSL = false;
       forceSSL = false;
