@@ -112,7 +112,12 @@
       };
 
       nixosConfigurations = lib.mapAttrs buildHost {
-        exo-nixos-2 = "x86_64-linux";
+        # exo-nixos-2 = "x86_64-linux";
+
+        nixos-tuwumesh-1 = "x86_64-linux";
+        nixos-tuwumesh-2 = "x86_64-linux";
+        nixos-tuwumesh-3 = "x86_64-linux";
+        nixos-tuwumesh-4 = "x86_64-linux";
       };
     };
 }
