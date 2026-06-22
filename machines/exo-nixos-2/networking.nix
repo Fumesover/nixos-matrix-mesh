@@ -6,7 +6,8 @@
 
     firewall.allowedTCPPorts = [
       # traefik
-      80 443
+      80
+      443
     ];
   };
 }

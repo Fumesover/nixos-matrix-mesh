@@ -87,7 +87,7 @@
       http.services.tuwunel-service = {
         loadBalancer.passHostHeader = true;
         loadBalancer.servers = [
-          { url = "http://localhost:6167";  }
+          { url = "http://localhost:6167"; }
         ];
       };
       http.services.irc-bridge-service = {

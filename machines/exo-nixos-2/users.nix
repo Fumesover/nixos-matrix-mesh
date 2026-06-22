@@ -7,14 +7,15 @@ in
     mutableUsers = false;
 
     users = {
-      root = {};
+      root = { };
 
       fumesover = {
         isNormalUser = true;
         shell = pkgs.fish;
 
         extraGroups = [
-          "wheel" "docker"
+          "wheel"
+          "docker"
         ];
 
         openssh.authorizedKeys.keys = secrets.users.fumesover.authorizedKeys;
