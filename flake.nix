@@ -1,11 +1,13 @@
 {
   description = "NixOS configurationn with flakes";
   inputs = {
-    futils.url          = "github:numtide/flake-utils?ref=main";
-    nixpkgs.url         = "github:NixOS/nixpkgs?ref=master";
-    disko.url           = "github:nix-community/disko";
+    futils.url = "github:numtide/flake-utils?ref=main";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=master";
+    disko.url = "github:nix-community/disko";
+    deploy-rs.url = "github:serokell/deploy-rs";
 
     disko.inputs.nixpkgs.follows = "nixpkgs";
+    deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
 
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix?ref=master";
@@ -22,6 +24,7 @@
     , nixpkgs
     , pre-commit-hooks
     , disko
+    , deploy-rs
     }:
     let
       inherit (futils.lib) eachDefaultSystem;
@@ -67,7 +70,8 @@
       (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in rec {
+      in
+      rec {
         # apps = {
         #     diff-flake = futils.lib.mkApp { drv = packages.diff-flake; };
         # };
@@ -87,8 +91,9 @@
           name = "NixOS-config";
 
           buildInputs = with pkgs; [
+            deploy-rs.packages.${system}.default
             git-crypt
-            gitAndTools.pre-commit
+            pre-commit
             gnupg
             nixpkgs-fmt
           ];
@@ -119,5 +124,22 @@
         nixos-tuwumesh-3 = "x86_64-linux";
         nixos-tuwumesh-4 = "x86_64-linux";
       };
+
+      deploy =
+        let
+          hosts = builtins.fromJSON (builtins.readFile ./hosts.json);
+        in
+        {
+          sshUser = "root";
+          nodes = lib.mapAttrs
+            (name: nixosCfg: {
+              hostname = hosts.${name}.ip;
+              profiles.system = {
+                user = "root";
+                path = deploy-rs.lib.x86_64-linux.activate.nixos nixosCfg;
+              };
+            })
+            self.nixosConfigurations;
+        };
     };
 }

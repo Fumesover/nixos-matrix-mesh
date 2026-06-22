@@ -32,84 +32,84 @@ in
     };
   };
 
-  services.matrix-appservice-irc = {
-    enable = true;
-    registrationUrl = "http://localhost:8009";
+  # services.matrix-appservice-irc = {
+  #   enable = true;
+  #   registrationUrl = "http://localhost:8009";
 
-    settings = {
-      homeserver = {
-        url = "http://localhost:${builtins.toString (builtins.head config.services.matrix-tuwunel.settings.global.port)}";
-        domain = "matrix.exo.parou.eu";
-      };
+  #   settings = {
+  #     homeserver = {
+  #       url = "http://localhost:${builtins.toString (builtins.head config.services.matrix-tuwunel.settings.global.port)}";
+  #       domain = "matrix.exo.parou.eu";
+  #     };
 
-      ircService.logging.level = "info"; # Do not log messages
-      ircService.mediaProxy = {
-        publicUrl = "https://matrix.exo.parou.eu/irc-media";
-        bindPort = 11111;
-        ttlSeconds = 0;
-      };
-      ircService.servers = {
-        "irc.exoscale.ch" = {
-          name = "Exoscale IRC server";
-          port = 6697;
-          ssl = true;
+  #     ircService.logging.level = "info"; # Do not log messages
+  #     ircService.mediaProxy = {
+  #       publicUrl = "https://matrix.exo.parou.eu/irc-media";
+  #       bindPort = 11111;
+  #       ttlSeconds = 0;
+  #     };
+  #     ircService.servers = {
+  #       "irc.exoscale.ch" = {
+  #         name = "Exoscale IRC server";
+  #         port = 6697;
+  #         ssl = true;
 
-          ircClients.nickTemplate = "$DISPLAY";
-          ircClients.lineLimit = 42;
+  #         ircClients.nickTemplate = "$DISPLAY";
+  #         ircClients.lineLimit = 42;
 
-          botConfig.enabled = true;
-          botConfig.nick     = secrets.services.matrix.bot_name;
-          botConfig.username = secrets.services.matrix.bot_name;
-          botConfig.password = secrets.services.matrix.bot_password;
-          allowUserConfig = true;
-          sayName = false;
-          # sasl = true;
+  #         botConfig.enabled = true;
+  #         botConfig.nick     = secrets.services.matrix.bot_name;
+  #         botConfig.username = secrets.services.matrix.bot_name;
+  #         botConfig.password = secrets.services.matrix.bot_password;
+  #         allowUserConfig = true;
+  #         sayName = false;
+  #         # sasl = true;
 
-          # Allow users to join any channel
-          dynamicChannels = {
-            enabled = true;
-            federate = false;
-          };
-          membershipLists = {
-            enabled = true;
-            global.ircToMatrix.initial = true;
-            global.ircToMatrix.incremental = true;
-            global.matrixToIrc.initial = true;
-            global.matrixToIrc.incremental = true;
-          };
-        };
-      };
-    };
-  };
+  #         # Allow users to join any channel
+  #         dynamicChannels = {
+  #           enabled = true;
+  #           federate = false;
+  #         };
+  #         membershipLists = {
+  #           enabled = true;
+  #           global.ircToMatrix.initial = true;
+  #           global.ircToMatrix.incremental = true;
+  #           global.matrixToIrc.initial = true;
+  #           global.matrixToIrc.incremental = true;
+  #         };
+  #       };
+  #     };
+  #   };
+  # };
 
-  # custom systemd timer which forces all rooms to have "shared" visibility,
-  # allowing newjoiners to access history
-  systemd.services.matrix-appservice-irc-force-shared = {
-    startAt = "hourly";
-    script = ''
-      #! /usr/bin/env bash
+  # # custom systemd timer which forces all rooms to have "shared" visibility,
+  # # allowing newjoiners to access history
+  # systemd.services.matrix-appservice-irc-force-shared = {
+  #   startAt = "hourly";
+  #   script = ''
+  #     #! /usr/bin/env bash
 
-      set -eo pipefail
+  #     set -eo pipefail
 
-      ENDPOINT="http://localhost:6167"
-      AUTH="Authorization: Bearer $(${pkgs.yq}/bin/yq -r .as_token /var/lib/matrix-appservice-irc/registration.yml)"
+  #     ENDPOINT="http://localhost:6167"
+  #     AUTH="Authorization: Bearer $(${pkgs.yq}/bin/yq -r .as_token /var/lib/matrix-appservice-irc/registration.yml)"
 
-      while read -r ROOM ; do
-        VISIBILITY="$(curl -s --fail -XGET -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility" | ${pkgs.jq}/bin/jq -r .history_visibility)"
-        echo "ROOM: $ROOM : $VISIBILITY"
+  #     while read -r ROOM ; do
+  #       VISIBILITY="$(curl -s --fail -XGET -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility" | ${pkgs.jq}/bin/jq -r .history_visibility)"
+  #       echo "ROOM: $ROOM : $VISIBILITY"
 
-        if [ "$VISIBILITY" != "shared" ]; then
-                echo "ROOM: Making $ROOM shared"
-                curl -s --fail -XPUT -d '{"history_visibility": "shared"}' -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility"
-        fi
+  #       if [ "$VISIBILITY" != "shared" ]; then
+  #               echo "ROOM: Making $ROOM shared"
+  #               curl -s --fail -XPUT -d '{"history_visibility": "shared"}' -H "$AUTH" "$ENDPOINT/_matrix/client/v3/rooms/$ROOM/state/m.room.history_visibility"
+  #       fi
 
-      done < <(curl -s --fail -XGET -H "$AUTH" $ENDPOINT/_matrix/client/v3/joined_rooms | ${pkgs.jq}/bin/jq -r .joined_rooms[])
-      '';
+  #     done < <(curl -s --fail -XGET -H "$AUTH" $ENDPOINT/_matrix/client/v3/joined_rooms | ${pkgs.jq}/bin/jq -r .joined_rooms[])
+  #     '';
 
-    serviceConfig = {
-      Type = "oneshot";
-      User = "matrix-appservice-irc";
-    };
-  };
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     User = "matrix-appservice-irc";
+  #   };
+  # };
 }
 
