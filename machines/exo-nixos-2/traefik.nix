@@ -55,6 +55,13 @@
         service = "nginx-static-service";
         tls.certResolver = "letsencrypt";
       };
+      http.routers.matrix-well-known = {
+        rule = "Host(`matrix.${config.networking.hostName}.parou.eu`) && PathPrefix(`/.well-known/matrix`)";
+        entryPoints = [ "websecure" ];
+        service = "nginx-static-service";
+        tls.certResolver = "letsencrypt";
+        priority = 20;
+      };
       http.routers.matrix-exo-parou-eu = {
         rule = "Host(`matrix.${config.networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];

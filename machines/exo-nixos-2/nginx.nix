@@ -3,6 +3,16 @@ let
   hostname = config.networking.hostName;
   matrixDomain = "matrix.${hostname}.parou.eu";
 
+  wellKnownServer = pkgs.writeText "well-known-matrix-server" (builtins.toJSON {
+    "m.server" = "${matrixDomain}:443";
+  });
+
+  wellKnownClient = pkgs.writeText "well-known-matrix-client" (builtins.toJSON {
+    "m.homeserver" = {
+      base_url = "https://${matrixDomain}";
+    };
+  });
+
   elementConfig = pkgs.writeText "element-config.json" (builtins.toJSON {
     default_server_config = {
       "m.homeserver" = {
@@ -106,6 +116,31 @@ in
         alias = cinnyConfig;
         extraConfig = ''
           default_type application/json;
+        '';
+      };
+    };
+
+    virtualHosts."matrix.${config.networking.hostName}.parou.eu" = {
+      addSSL = false;
+      forceSSL = false;
+
+      listen = [
+        { addr = "127.0.0.1"; port = 8042; }
+      ];
+
+      locations."= /.well-known/matrix/server" = {
+        alias = wellKnownServer;
+        extraConfig = ''
+          default_type application/json;
+          add_header Access-Control-Allow-Origin *;
+        '';
+      };
+
+      locations."= /.well-known/matrix/client" = {
+        alias = wellKnownClient;
+        extraConfig = ''
+          default_type application/json;
+          add_header Access-Control-Allow-Origin *;
         '';
       };
     };

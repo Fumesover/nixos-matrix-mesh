@@ -17,7 +17,10 @@ in
     settings.global = {
       server_name = "matrix.${config.networking.hostName}.parou.eu";
       allow_registration = true;
-      allow_federation = false;
+      allow_federation = true;
+      allowed_remote_server_names_experimental = [
+        "matrix\\.nixos-tuwumesh-[1234]\\.parou\\.eu"
+      ];
       allow_encryption = true;
       registration_token = secrets.services.matrix.registration_token;
       new_user_displayname_suffix = "";
