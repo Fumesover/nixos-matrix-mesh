@@ -131,7 +131,7 @@
           hosts = builtins.fromJSON (builtins.readFile ./hosts.json);
         in
         {
-          sshUser = "root";
+          sshUser = "fumesover";
           nodes = lib.mapAttrs
             (name: nixosCfg: {
               hostname = hosts.${name}.ip;
