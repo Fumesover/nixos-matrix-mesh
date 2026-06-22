@@ -30,7 +30,7 @@ throwOnCanary {
     services = {
       matrix = {
         registration_token = lib.trim (fileContents ./services/matrix/registration_token);
-        bot_name     = lib.trim (fileContents ./services/matrix/bot_name);
+        bot_name = lib.trim (fileContents ./services/matrix/bot_name);
         bot_password = lib.trim (fileContents ./services/matrix/bot_password);
       };
     };
