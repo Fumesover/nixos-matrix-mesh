@@ -136,7 +136,7 @@
             (name: nixosCfg: {
               hostname = hosts.${name}.ip;
               profiles.system = {
-                user = "root";
+                user = "fumesover";
                 path = deploy-rs.lib.x86_64-linux.activate.nixos nixosCfg;
               };
             })
