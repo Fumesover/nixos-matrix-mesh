@@ -1,6 +1,50 @@
 { lib, config, pkgs, ... }:
 let
   secrets = config.my.secrets;
+  hostname = config.networking.hostName;
+  localServer = "matrix.${hostname}.parou.eu";
+
+  meshServers = [
+    "matrix.nixos-tuwumesh-1.parou.eu"
+    "matrix.nixos-tuwumesh-2.parou.eu"
+    "matrix.nixos-tuwumesh-3.parou.eu"
+    "matrix.nixos-tuwumesh-4.parou.eu"
+  ];
+  peerServers = builtins.filter (s: s != localServer) meshServers;
+
+  replicatorScript = pkgs.writeShellScript "matrix-replicator" ''
+    set -euo pipefail
+
+    ENDPOINT="http://localhost:6167"
+    LOCAL_SERVER="${localServer}"
+    REPLICATOR="@replicator:''${LOCAL_SERVER}"
+    AUTH="Authorization: Bearer $(cat /var/lib/tuwunel/replicator-token)"
+
+    # Rooms the replicator has already joined
+    JOINED=$(${pkgs.curl}/bin/curl -sf -H "''${AUTH}" \
+      "''${ENDPOINT}/_matrix/client/v3/joined_rooms" \
+      | ${pkgs.jq}/bin/jq -r '.joined_rooms[]')
+
+    for PEER in ${lib.escapeShellArgs peerServers}; do
+      echo "Querying rooms from ''${PEER}..."
+
+      ROOMS=$(${pkgs.curl}/bin/curl -sf -H "''${AUTH}" \
+        "''${ENDPOINT}/_matrix/client/v3/publicRooms?server=''${PEER}" \
+        | ${pkgs.jq}/bin/jq -r '.chunk[].room_id // empty') || continue
+
+      for ROOM in ''${ROOMS}; do
+        if ! echo "''${JOINED}" | grep -qxF "''${ROOM}"; then
+          echo "Joining ''${ROOM} from ''${PEER}"
+          ${pkgs.curl}/bin/curl -sf -X POST \
+            -H "''${AUTH}" -H "Content-Type: application/json" \
+            -d "{\"user_id\": \"''${REPLICATOR}\"}" \
+            "''${ENDPOINT}/_synapse/admin/v1/join/''${ROOM}" || true
+        fi
+      done
+    done
+
+    echo "Replication sync complete."
+  '';
 in
 {
   # Allow tuwunel to read matrix-appservice-irc's files
@@ -114,5 +158,30 @@ in
   #     User = "matrix-appservice-irc";
   #   };
   # };
+
+  # Replicator: ensures every room in the mesh is federated to this node
+  # by having a local @replicator user join all public rooms from peer servers.
+  #
+  # Setup: register a `replicator` user on each node, make it admin, and
+  # store its access token in /var/lib/tuwunel/replicator-token
+  systemd.services.matrix-replicator = {
+    description = "Matrix mesh room replicator";
+    after = [ "tuwunel.service" ];
+    requires = [ "tuwunel.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = replicatorScript;
+      User = "matrix-tuwunel";
+    };
+  };
+
+  systemd.timers.matrix-replicator = {
+    description = "Run matrix mesh replicator every 5 minutes";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "5min";
+    };
+  };
 }
 
