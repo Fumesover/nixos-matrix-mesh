@@ -20,8 +20,8 @@ module "sg_ssh" {
   source = "./modules/security_group"
   name   = "ssh"
   rules = {
-    ssh_ipv4 = { description = "SSH", type = "INGRESS", cidr = "0.0.0.0/0", start_port = 22, end_port = 22 }
-    ssh_ipv6 = { description = "", type = "INGRESS", cidr = "::/0", start_port = 22, end_port = 22 }
+    ssh_ipv4 = { description = "SSH", type = "ingress", cidr = "0.0.0.0/0", start_port = 22, end_port = 22 }
+    ssh_ipv6 = { description = "", type = "ingress", cidr = "::/0", start_port = 22, end_port = 22 }
   }
 }
 

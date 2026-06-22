@@ -6,7 +6,7 @@ variable "name" {
 variable "rules" {
   type = map(object({
     type                   = string
-    protocol               = optional(string, "TCP")
+    protocol               = optional(string, "tcp")
     description            = optional(string, "")
     cidr                   = optional(string)
     public_security_group  = optional(string)
