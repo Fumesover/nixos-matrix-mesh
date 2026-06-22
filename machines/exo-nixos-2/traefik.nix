@@ -43,38 +43,24 @@
     };
 
     dynamicConfigOptions = {
-      http.routers.exo-parou-eu = {
-        rule = "Host(`exo.parou.eu`)";
-        entryPoints = [ "websecure" ];
-        service = "nginx-static-service";
-        tls.certResolver = "letsencrypt";
-      };
       http.routers.element-exo-parou-eu = {
-        rule = "Host(`element.exo.parou.eu`)";
+        rule = "Host(`element.${networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "nginx-static-service";
         tls.certResolver = "letsencrypt";
       };
       http.routers.cinny-exo-parou-eu = {
-        rule = "Host(`cinny.exo.parou.eu`)";
+        rule = "Host(`cinny.${networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "nginx-static-service";
         tls.certResolver = "letsencrypt";
       };
       http.routers.matrix-exo-parou-eu = {
-        rule = "Host(`matrix.exo.parou.eu`)";
+        rule = "Host(`matrix.${networking.hostName}.parou.eu`)";
         entryPoints = [ "websecure" ];
         service = "tuwunel-service";
         tls.certResolver = "letsencrypt";
         priority = 10;
-      };
-      http.routers.matrix-exo-parou-eu-irc-bridge-media = {
-        rule = "Host(`matrix.exo.parou.eu`) && PathPrefix(`/irc-media`)";
-        entryPoints = [ "websecure" ];
-        service = "irc-bridge-service";
-        middlewares = [ "irc-media-strip" ];
-        tls.certResolver = "letsencrypt";
-        priority = 20;
       };
 
       # Routers
@@ -90,15 +76,6 @@
           { url = "http://localhost:6167"; }
         ];
       };
-      http.services.irc-bridge-service = {
-        loadBalancer.passHostHeader = true;
-        loadBalancer.servers = [
-          { url = "http://127.0.0.1:11111"; }
-        ];
-      };
-
-      # Middlewares
-      http.middlewares.irc-media-strip.stripPrefix.prefixes = [ "/irc-media" ];
     };
   };
 }
