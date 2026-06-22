@@ -58,6 +58,7 @@
         inherit system;
         modules = defaultModules ++ [
           (./. + "/machines/${name}")
+          { networking.hostName = lib.mkForce name; }
         ];
         specialArgs = {
           inherit lib;
